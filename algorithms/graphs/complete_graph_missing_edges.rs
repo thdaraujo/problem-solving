@@ -1,8 +1,11 @@
+// cargo-deps: itertools
+extern crate itertools;
 use itertools::Itertools;
 
 fn missing_edges(n: i32, edges: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
     let all_edges = (0..n).combinations(2);
-    all_edges.filter(|e| !edges.contains(e) && !edges.contains(&vec![e[1], e[0]]) ).collect()
+    all_edges.filter(|e| !edges.contains(e) && !edges.contains(&vec![e[1], e[0]]) )
+             .collect()
 }
 
 fn main() {
@@ -42,3 +45,10 @@ mod tests {
         assert_eq!(actual, expected);
     }
 }
+
+// how to run
+// $ cargo install cargo-script
+// $ cargo script complete_graph_missing_edges.rs
+
+// how to test:
+// $ cargo script complete_graph_missing_edges.rs --test
