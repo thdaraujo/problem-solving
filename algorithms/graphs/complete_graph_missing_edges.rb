@@ -1,4 +1,6 @@
-require "test/unit/assertions"
+# frozen_string_literal: true
+
+require 'test/unit/assertions'
 include Test::Unit::Assertions
 
 # given `n` as the number of nodes in a network
@@ -14,30 +16,31 @@ end
 
 # trivial graph
 def trivial_graph_test
-    n, edges = 1, []
-    actual = missing_edges(n, edges)
-    expected = []
-    assert_equal(actual, [])
+  n = 1
+  edges = []
+  actual = missing_edges(n, edges)
+  expected = []
+  assert_equal(actual, expected)
 end
 
 # no missing edges
 def no_missing_edges_test
-    n = 3
-    edges = [[0,1], [1,2], [0,2]]
-    actual = missing_edges(n, edges)
-    expected = []
+  n = 3
+  edges = [[0, 1], [1, 2], [0, 2]]
+  actual = missing_edges(n, edges)
+  expected = []
 
-    assert_equal actual, expected
+  assert_equal actual, expected
 end
 
 # some missing edges
 def some_missing_edges_test
-    n = 4
-    edges = [[0,1], [1,2], [2,0]]
-    actual = missing_edges(n, edges)
-    expected = [[0,3], [1,3], [2,3]]
+  n = 4
+  edges = [[0, 1], [1, 2], [2, 0]]
+  actual = missing_edges(n, edges)
+  expected = [[0, 3], [1, 3], [2, 3]]
 
-    assert_equal(actual, expected)
+  assert_equal(actual, expected)
 end
 
 # run test suite
