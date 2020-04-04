@@ -1,23 +1,20 @@
 # frozen_string_literal: true
 
-# require 'test/unit/assertions'
-# include Test::Unit::Assertions
-
-require 'set'
-
 class Node
-  attr_reader :key, :name
-  attr_accessor :adjacents
+  attr_reader :key, :name, :adjacents
 
   def initialize(key, name)
     @key = key
     @name = name
-    @adjacents = Set.new
+    @adjacents = []
+  end
+
+  def to_s
+    "(key: #{key}, name: #{name}, adjacents: #{adjacents.map(&:name)})"
   end
 end
 
 class Graph
-  attr_reader :edges
 
   def initialize
     @nodes = {}
@@ -28,7 +25,7 @@ class Graph
     @nodes[node.key] = node
 
     node.adjacents.each do |adj|
-      edge = Set.new([node.key, adj.key])
+      edge = [node.key, adj.key]
       @edges[edge] = [node, adj]
     end
   end
@@ -45,53 +42,49 @@ class Graph
     @nodes.values
   end
 
-  def bfs(source_node, visited = [])
-    queue = []
-    queue << source_node
-    visited << source_node
+  def edges
+    @edges.values
+  end
 
-    while queue.any?
-      current_node = queue.shift # dequeue
-      puts "visited node #{current_node.name}"
+  def traversal(node, algorithm: :bfs)
+    raise "Invalid strategy" unless [:bfs, :dfs].include?(algorithm)
 
-      current_node.adjacents.each do |adjacent_node|
-        next if visited.include?(adjacent_node)
+    visited = {}
+    nodes = [node]
 
-        queue << adjacent_node
-        visited << adjacent_node
-      end
+    while nodes.any?
+      current = (algorithm == :bfs ? nodes.shift : nodes.pop)
+      next if visited[current]
+      visited[current] = true
+      yield current if block_given?
+      nodes = nodes + current.adjacents
     end
   end
 
-  def dfs(node, visited = [])
-    puts "visited node #{node.name}"
-    visited << node
-    node.adjacents.each do |adj_node|
-      next if visited.include?(adj_node)
+  def breadth_first(node)
+    traversal(node, algorithm: :bfs) do |current|
+      yield current if block_given?
+    end
+  end
 
-      dfs(adj_node, visited)
+  def depth_first(node)
+    traversal(node, algorithm: :dfs) do |current|
+      yield current if block_given?
     end
   end
 end
 
+# tests 
 
 n1 = Node.new(1, "A")
-n2 = Node.new(1, "B")
-n3 = Node.new(1, "C")
-n4 = Node.new(1, "D")
-n5 = Node.new(1, "E")
-n6 = Node.new(1, "F")
-n7 = Node.new(1, "G")
+n2 = Node.new(2, "B")
+n3 = Node.new(3, "C")
+n4 = Node.new(4, "D")
+n5 = Node.new(5, "E")
+n6 = Node.new(6, "F")
+n7 = Node.new(7, "G")
 
 graph = Graph.new
-
-graph.add_node(n1)
-graph.add_node(n2)
-graph.add_node(n3)
-graph.add_node(n4)
-graph.add_node(n5)
-graph.add_node(n6)
-graph.add_node(n7)
 
 graph.add_edge(n1, n2)
 graph.add_edge(n1, n3)
@@ -100,8 +93,24 @@ graph.add_edge(n2, n5)
 graph.add_edge(n3, n6)
 graph.add_edge(n3, n7)
 
-puts "bfs"
-graph.bfs(n1)
+require 'test/unit/assertions'
+include Test::Unit::Assertions
 
-puts "bfs"
-graph.dfs(n1)
+expected = ["A", "B", "C", "D", "E", "F", "G"]
+actual = []
+
+graph.breadth_first(n1) do |node| 
+  actual << node.name
+end
+
+assert_equal(actual, expected)
+
+
+expected = ["A", "C", "G", "F", "B", "E", "D"]
+actual = []
+
+graph.depth_first(n1) do |node| 
+  actual << node.name
+end
+
+assert_equal(actual, expected)
