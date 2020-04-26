@@ -4,6 +4,21 @@ def powerset(set)
     end
 end
 
+def _powerset(set)
+    [[]] + (0..set.size).flat_map do |size|
+        combination(set, size)
+    end
+end
+
+# basic implementation of combination
+def combination(set, size)
+    return [] if size.zero?
+    return [set] if size >= set.size
+    (0..set.size - size).map do |i|
+        set.drop(i).take(size)
+    end
+end
+
 require 'test/unit/assertions'
 include Test::Unit::Assertions
 
