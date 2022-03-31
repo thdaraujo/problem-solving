@@ -4,12 +4,33 @@ class Trie < Hash
   end
 
   def add(key)
-    key.chars.inject(self) do |hash, char|
-      hash[char] ||= {}
+    last_index = key.size - 1
+
+    key.chars.each_with_index.inject(self) do |hash, (char, index)|
+      unless hash[char]
+        hash[char] = {}
+      end
+
+      hash[char][:end] = true if index == last_index
+
+      hash[char]
     end
+
+    nil
   end
 
-  def have?(word)
+  def have?(key)
+    hash = self
+    key.each_char do |char|
+      return false if hash.nil?
+      return false if hash[char].nil?
+      hash = hash[char]
+    end
+
+    hash.keys.include?(:end)
+  end
+
+  def starts_with?(word)
     hash = self
 
     word.each_char do |char|
@@ -30,12 +51,19 @@ trie.add("dog")
 trie.add("dogs")
 trie.add("dogma")
 
-puts trie.inspect
-
 assert_equal(trie.have?("dog"), true)
 assert_equal(trie.have?("dogs"), true)
 assert_equal(trie.have?("dogma"), true)
-assert_equal(trie.have?("do"), true)
+assert_equal(trie.have?("do"), false)
 assert_equal(trie.have?("doomas"), false)
 assert_equal(trie.have?("dogmas"), false)
-assert_equal(trie.have?(""), true)
+assert_equal(trie.have?(""), false)
+
+assert_equal(trie.starts_with?("d"), true)
+assert_equal(trie.starts_with?("dog"), true)
+assert_equal(trie.starts_with?("dogs"), true)
+assert_equal(trie.starts_with?("dogma"), true)
+assert_equal(trie.starts_with?("do"), true)
+assert_equal(trie.starts_with?("doomas"), false)
+assert_equal(trie.starts_with?("dogmas"), false)
+assert_equal(trie.starts_with?(""), true)
