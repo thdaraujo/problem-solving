@@ -1,69 +1,67 @@
-class Trie < Hash
+class Trie
   def initialize
-    super
+    @tree = {}
   end
 
   def add(key)
-    last_index = key.size - 1
+    key.chars.each_with_index.inject(tree) do |tree, (char, index)|
+      tree[char] ||= {}
+      tree[char][:terminal] = true if index == key.size - 1
 
-    key.chars.each_with_index.inject(self) do |hash, (char, index)|
-      unless hash[char]
-        hash[char] = {}
-      end
-
-      hash[char][:end] = true if index == last_index
-
-      hash[char]
+      tree[char]
     end
 
     nil
   end
 
   def have?(key)
-    hash = self
+    node = tree
     key.each_char do |char|
-      return false if hash.nil?
-      return false if hash[char].nil?
-      hash = hash[char]
+      return false if node.nil? || node[char].nil?
+
+      node = node[char]
     end
 
-    hash.keys.include?(:end)
+    node.key? :terminal
   end
 
   def starts_with?(word)
-    hash = self
-
+    node = tree
     word.each_char do |char|
-      return false if hash.nil?
-      return false if hash[char].nil?
-      hash = hash[char]
+      return false if node.nil? || node[char].nil?
+
+      node = node[char]
     end
 
     true
   end
+
+  private
+
+  attr_reader :tree
 end
 
-require "test/unit/assertions"
+require 'test/unit/assertions'
 include Test::Unit::Assertions
 
 trie = Trie.new
-trie.add("dog")
-trie.add("dogs")
-trie.add("dogma")
+trie.add('dog')
+trie.add('dogs')
+trie.add('dogma')
 
-assert_equal(trie.have?("dog"), true)
-assert_equal(trie.have?("dogs"), true)
-assert_equal(trie.have?("dogma"), true)
-assert_equal(trie.have?("do"), false)
-assert_equal(trie.have?("doomas"), false)
-assert_equal(trie.have?("dogmas"), false)
-assert_equal(trie.have?(""), false)
+assert_equal(trie.have?('dog'), true)
+assert_equal(trie.have?('dogs'), true)
+assert_equal(trie.have?('dogma'), true)
+assert_equal(trie.have?('do'), false)
+assert_equal(trie.have?('doomas'), false)
+assert_equal(trie.have?('dogmas'), false)
+assert_equal(trie.have?(''), false)
 
-assert_equal(trie.starts_with?("d"), true)
-assert_equal(trie.starts_with?("dog"), true)
-assert_equal(trie.starts_with?("dogs"), true)
-assert_equal(trie.starts_with?("dogma"), true)
-assert_equal(trie.starts_with?("do"), true)
-assert_equal(trie.starts_with?("doomas"), false)
-assert_equal(trie.starts_with?("dogmas"), false)
-assert_equal(trie.starts_with?(""), true)
+assert_equal(trie.starts_with?('d'), true)
+assert_equal(trie.starts_with?('dog'), true)
+assert_equal(trie.starts_with?('dogs'), true)
+assert_equal(trie.starts_with?('dogma'), true)
+assert_equal(trie.starts_with?('do'), true)
+assert_equal(trie.starts_with?('doomas'), false)
+assert_equal(trie.starts_with?('dogmas'), false)
+assert_equal(trie.starts_with?(''), true)
