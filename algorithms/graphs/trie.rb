@@ -36,7 +36,31 @@ class Trie
     true
   end
 
+  def delete(key)  
+    node = tree
+    delete_recursive(key, node)
+
+    nil
+  end
+
   private
+
+  def delete_recursive(key, parent)
+    return if key.nil? || key.empty? || parent.nil?
+
+    head, tail = key[0], key[1..-1]
+
+    child = parent[head] 
+    delete_recursive(tail, child)
+
+    if key.size == 1 && child.key?(:terminal)
+      child.delete(:terminal)
+    end
+    
+    if child.keys.empty?
+      parent.delete(head) # prune tree
+    end
+  end
 
   attr_reader :tree
 end
@@ -44,24 +68,66 @@ end
 require 'test/unit/assertions'
 include Test::Unit::Assertions
 
+words = ['dog', 'dogs', 'dogma', 'dogmas', 'dogmatic', 'apple', 'apples']
 trie = Trie.new
-trie.add('dog')
-trie.add('dogs')
-trie.add('dogma')
 
-assert_equal(trie.have?('dog'), true)
-assert_equal(trie.have?('dogs'), true)
-assert_equal(trie.have?('dogma'), true)
+words.each do |word|
+  trie.add(word)
+end
+
+words.each do |word|
+  assert_equal(trie.have?(word), true)
+end
+
 assert_equal(trie.have?('do'), false)
 assert_equal(trie.have?('doomas'), false)
-assert_equal(trie.have?('dogmas'), false)
 assert_equal(trie.have?(''), false)
 
+words.each do |word|
+  assert_equal(trie.starts_with?(word), true)
+end
+
 assert_equal(trie.starts_with?('d'), true)
-assert_equal(trie.starts_with?('dog'), true)
-assert_equal(trie.starts_with?('dogs'), true)
-assert_equal(trie.starts_with?('dogma'), true)
 assert_equal(trie.starts_with?('do'), true)
-assert_equal(trie.starts_with?('doomas'), false)
-assert_equal(trie.starts_with?('dogmas'), false)
+assert_equal(trie.starts_with?('dogma'), true)
+assert_equal(trie.starts_with?('app'), true)
 assert_equal(trie.starts_with?(''), true)
+
+assert_equal(trie.starts_with?('e'), false)
+assert_equal(trie.have?('dogss'), false)
+
+
+# delete
+trie.delete('dogma')
+words.delete('dogma')
+
+words.each do |word|
+  assert_equal(trie.have?(word), true)
+end
+
+assert_equal(trie.have?('dogma'), false)
+
+words.each do |word|
+  assert_equal(trie.starts_with?(word), true)
+end
+
+assert_equal(trie.starts_with?('d'), true)
+assert_equal(trie.starts_with?('do'), true)
+assert_equal(trie.starts_with?('dogma'), true)
+assert_equal(trie.starts_with?(''), true)
+assert_equal(trie.starts_with?('e'), false)
+assert_equal(trie.have?('dogss'), false)
+
+trie.delete('apple')
+words.delete('apple')
+
+assert_equal(trie.have?('apple'), false)
+assert_equal(trie.have?('apples'), true)
+assert_equal(trie.starts_with?('apple'), true)
+
+trie.delete('apples')
+words.delete('apples')
+
+assert_equal(trie.have?('apple'), false)
+assert_equal(trie.have?('apples'), false)
+assert_equal(trie.starts_with?('apple'), false)
