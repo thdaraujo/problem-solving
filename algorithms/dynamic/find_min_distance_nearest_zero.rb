@@ -45,10 +45,18 @@ require 'test/unit/assertions'
 include Test::Unit::Assertions
 
 def test_simple_case
-  input = [[0,0,0],[0,1,0],[0,0,0]]
+  input = [
+     [0,0,0],
+     [0,1,0],
+     [0,0,0]
+  ]
+  expected = [
+     [0,0,0],
+     [0,1,0],
+     [0,0,0]
+  ]
+  
   actual = find_min_distance_nearest_zero(input)
-  expected = [[0,0,0],[0,1,0],[0,0,0]]
-
   assert_equal(actual, expected)
 end
 
