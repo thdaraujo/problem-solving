@@ -19,6 +19,11 @@ def palindrome?(sentence)
     s == s.reverse
 end
 
+def palindrome_recur?(sentence)
+    return true if sentence.size < 2
+    sentence[0] == sentence[-1] && palindrome_recur?(sentence[1...-1])
+end
+
 # tests
 
 require 'test/unit/assertions'
@@ -98,6 +103,20 @@ def palindromes_test
     assert_equal palindrome?("thinking about the government"), false
 end
 
+def palindromes_recur_test
+    assert_equal palindrome_recur?([]), true
+    assert_equal palindrome_recur?([1]), true
+    assert_equal palindrome_recur?([1, 0, 1]), true
+    assert_equal palindrome_recur?([1, 1, 1]), true
+    assert_equal palindrome_recur?([1, 2, 2, 1]), true
+    assert_equal palindrome_recur?("warsawwasraw"), true
+    
+    assert_equal palindrome_recur?([1, 2, 2, 3]), false
+    assert_equal palindrome_recur?("eleven dollar bills"), false
+    assert_equal palindrome_recur?("thinking about the government"), false
+end
+
 anagram_test
 count_anagrams_test
 palindromes_test
+palindromes_recur_test
